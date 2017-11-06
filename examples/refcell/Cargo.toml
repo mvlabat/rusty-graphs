@@ -1,0 +1,16 @@
+[package]
+name = "refcell-examples"
+version = "0.1.0"
+publish = false
+workspace = "../.."
+
+[[bin]]
+name = "graph"
+path = "graph.rs"
+
+[[bin]]
+name = "dijkstra"
+path = "dijkstra.rs"
+
+[dependencies]
+refcell = { path = "../../src/refcell", version = "0.1.0" }

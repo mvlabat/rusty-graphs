@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "src/graph",
+    "src/refcell",
+    "examples/refcell",
+]

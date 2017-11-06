@@ -1,0 +1,7 @@
+[package]
+name = "refcell"
+version = "0.1.0"
+authors = ["mvlabat <mvlabat@gmail.com>"]
+
+[dependencies]
+graph = { path = "../graph", version = "0.1.0" }
