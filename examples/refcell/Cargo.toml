@@ -13,4 +13,5 @@ name = "dijkstra"
 path = "dijkstra.rs"
 
 [dependencies]
+graph = { path = "../../src/graph", version = "0.1.0" }
 refcell = { path = "../../src/refcell", version = "0.1.0" }
