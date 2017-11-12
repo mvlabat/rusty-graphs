@@ -1,7 +1,8 @@
 extern crate graph;
 
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 use std::cell::{Ref, RefCell};
+use std::hash::{Hash, Hasher};
 
 pub struct GraphNode<Datum, EdgeWeight>(Rc<RefCell<Node<Datum, EdgeWeight>>>);
 
@@ -21,14 +22,18 @@ impl<Datum, EdgeWeight> graph::GraphNode<Datum, EdgeWeight, GraphEdge<Datum, Edg
     }
 
     fn add(&mut self, datum: Datum, weight: EdgeWeight) -> GraphNode<Datum, EdgeWeight> {
-        let mut node = Self::create(datum);
-        let mut edge = GraphEdge(Rc::new(RefCell::new(Edge {
+        let node = Self::create(datum);
+        self.connect(node.clone(), weight);
+        node
+    }
+
+    fn connect(&mut self, node: Self, weight: EdgeWeight) {
+        let edge = GraphEdge(Rc::new(RefCell::new(Edge {
             nodes: (self.clone(), node.clone()),
             weight,
         })));
         node.0.borrow_mut().edges.push(edge.clone());
         self.0.borrow_mut().edges.push(edge);
-        node
     }
 
     fn datum(&self) -> Ref<Datum> {
@@ -37,6 +42,20 @@ impl<Datum, EdgeWeight> graph::GraphNode<Datum, EdgeWeight, GraphEdge<Datum, Edg
 
     fn edges(&self) -> Ref<Vec<GraphEdge<Datum, EdgeWeight>>> {
         Ref::map(self.0.borrow(), |node| &node.edges)
+    }
+}
+
+impl<Datum, EdgeWeight> PartialEq for GraphNode<Datum, EdgeWeight> {
+    fn eq(&self, other: &GraphNode<Datum, EdgeWeight>) -> bool {
+        Rc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+impl<Datum, EdgeWeight> Eq for GraphNode<Datum, EdgeWeight> {}
+
+impl<Datum, EdgeWeight> Hash for GraphNode<Datum, EdgeWeight> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        Rc::into_raw(self.0.clone()).hash(state);
     }
 }
 
@@ -60,7 +79,6 @@ impl<Weight, Datum> Clone for GraphEdge<Weight, Datum> {
     }
 }
 
-type WeakNode<Datum, EdgeWeight> = Weak<RefCell<Node<Datum, EdgeWeight>>>;
 type RcEdge<Datum, EdgeWeight> = Rc<RefCell<Edge<Datum, EdgeWeight>>>;
 
 pub struct Node<Datum, EdgeWeight> {
